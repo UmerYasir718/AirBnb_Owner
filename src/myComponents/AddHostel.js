@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../mainComponents/Navbar";
 import Store from "../mainComponents/Store";
 export default function AddHostel() {
@@ -23,6 +25,14 @@ export default function AddHostel() {
 
   const handlePostData = async () => {
     // console.log(image);
+    if (hostelPrice >= 7000) {
+      toast.error("Enter Rent Less than 7000");
+      return;
+    }
+    if (hostelContact.length !== 14) {
+      toast.error("Enter Rent Less than 7000");
+      return;
+    }
     try {
       //  console.log(imagePage);
       const formData = new FormData();
@@ -45,14 +55,17 @@ export default function AddHostel() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to generate content");
+        toast.error(response.message);
       } else {
         const json = await response.json();
         console.log(json);
-        alert("Hostel Add SuccessFully");
-        // setImagePage("");
-        // setImage(null);
-        // fetchRoutesData();
+        toast.success("Hostel Add SuccessFully");
+        setHostelName("");
+        setHostelPrice("");
+        setHostelType("");
+        setHostelContact("");
+        setHostelDescription("");
+        setHostelLocation("");
       }
     } catch (error) {
       console.log(error);

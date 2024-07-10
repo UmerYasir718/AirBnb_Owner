@@ -5,11 +5,12 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import Store from "../mainComponents/Store";
 export default function Navbar() {
   const { owner, setOwner } = useContext(Store);
-  const [removeCookie] = useCookies(['token']);
+  // eslint-disable-next-line no-unused-vars
+  const [cookie, setCookie, removeCookies] = useCookies(['token']);
   const navigate = useNavigate();
   const handleSignOut = () => {
     // Remove the 'token' cookie upon signout
-    removeCookie("token");
+    removeCookies("token");
     setTimeout(() => {
       navigate('/');
       setOwner()

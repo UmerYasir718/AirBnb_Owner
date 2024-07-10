@@ -30,14 +30,31 @@ export default function SignUp() {
   const handleConfirmPassword = async (e) => {
     setOwnerConfirmPassword(e.target.value);
   };
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return regex.test(email);
+  };
   const handleSignUp = async (e) => {
-    console.log(ownerEmail, ownerEmail, ownerPassword, ownerConfirmPassword);
+    console.log(
+      ownerName,
+      ownerEmail,
+      ownerPassword,
+      ownerConfirmPassword,
+      ownerName.length
+    );
     e.preventDefault();
-    if (ownerCNIC.length !== 13) {
-      toast.error("Enter valid CNIC Number");
+    if (ownerName.length < 5) {
+      toast.error("Username must be at least 5 characters long");
       return;
     }
-
+    if (!validateEmail(ownerEmail)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+    if (ownerCNIC.length !== 13) {
+      toast.error("Enter a valid CNIC Number");
+      return;
+    }
     if (ownerPassword !== ownerConfirmPassword) {
       toast.error("Both passwords must be the same");
       return;
@@ -53,9 +70,6 @@ export default function SignUp() {
         "https://ait-bnb-apis.vercel.app/ownerSignup",
         {
           method: "POST",
-          // headers: {
-          //   "Content-Type": "application/json",
-          // },
           body: formData,
           // JSON.stringify({
           //   ownerName,
@@ -70,10 +84,9 @@ export default function SignUp() {
       const data = await response.json();
 
       if (data.success) {
-        navigate("/login");
+        navigate("/");
         toast.success(data.message);
       } else {
-        // Handle login failure
         console.error(data.message);
         toast.error(data.message);
       }
@@ -117,7 +130,7 @@ export default function SignUp() {
                   id='inputGroupFile02'
                   onChange={handleImage}
                 />
-                <label className='input-group-text' for='inputGroupFile02'>
+                <label className='input-group-text' htmlFor='inputGroupFile02'>
                   Upload
                 </label>
               </div>
@@ -130,6 +143,7 @@ export default function SignUp() {
                   name='email'
                   id='email'
                   placeholder='Enter Your Email Address'
+                  required
                 />
               </div>
               <div className='form_input'>

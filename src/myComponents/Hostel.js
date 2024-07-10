@@ -1,16 +1,34 @@
 /* eslint-disable eqeqeq */
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../mainComponents/Navbar";
 import Store from "../mainComponents/Store";
 export default function Hostel() {
   const [data, setData] = useState("");
   const [selectedHostel, setSelectedHostel] = useState(null);
+  const [selectedUpdate, setSelectedUpdate] = useState(null);
+  const [hostelName, setHostelName] = useState("");
+  const [hostelPrice, setHostelPrice] = useState("");
+  const [hostelLocation, setHostelLocation] = useState("");
+  const [hostelContact, setHostelContact] = useState("");
+  const [hostelType, setHostelType] = useState("");
+  const [hostelDescription, setHostelDescription] = useState("");
   const { owner } = useContext(Store);
+  const [count] = useState(1);
   const handleDetail = (data) => {
     setSelectedHostel(data);
   };
-  const [count] = useState(1);
+  const handleUpdate = (data) => {
+    setSelectedUpdate(data)
+    setHostelName(data.hostelName);
+    setHostelPrice(data.hostelPrice);
+    setHostelLocation(data.hostelLocation);
+    setHostelContact(data.hostelContact);
+    setHostelDescription(data.hostelDescription);
+  };
+
   const fetchHostelData = async () => {
     try {
       const response = await fetch("https://ait-bnb-apis.vercel.app/getHostel");
@@ -19,6 +37,57 @@ export default function Hostel() {
     } catch (error) {
       console.error("Error fetching data:", error);
       //   alert(error);
+    }
+  };
+  const handleUpdateSubmit = async () => {
+    // if (!hostelName || !hostelPrice || !hostelContact || !hostelDescription || !hostelLocation) {
+    //   toast.error("Please fill in all fields before updating.");
+    //   return;
+    // }
+    if (hostelPrice >= 7000) {
+      toast.error("Enter Rent Less than 7000");
+      return;
+    }
+    if (hostelContact.length !== 13) {
+      toast.error("Enter a valid contact number");
+      return;
+    }
+    const updatedFormData = {
+      hostelName,
+      hostelPrice,
+      hostelContact,
+      hostelDescription,
+      hostelLocation
+    };
+    console.log("Updated FormData:", updatedFormData);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/hostelUpdate/${selectedUpdate._id}`,
+        {
+          method: "PUT", // Use PUT for updates
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedFormData),
+        }
+      );
+
+      if (response.ok) {
+        alert("Item updated successfully!");
+        fetchHostelData()// Refresh the data after the update
+        setHostelName("");
+        setHostelPrice("");
+        setHostelType("");
+        setHostelContact("");
+        setHostelDescription("");
+        setHostelLocation("");
+      } else {
+        console.error("Failed to update item:", response.statusText);
+        alert(response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating item:", error);
     }
   };
   const handleDelete = async (data) => {
@@ -58,12 +127,10 @@ export default function Hostel() {
             <table className='table table-dark table-bordered border-light'>
               <thead>
                 <tr>
-                  <th scope='col'>No.</th>
+                  {/* <th scope='col'>No.</th> */}
                   <th scope='col'>Hostel Name</th>
-                  <th scope='col'>Hostel Rent</th>
                   <th scope='col'>Hostel Type</th>
-                  <th scope='col'>Image</th>
-                  <th scope='col'>3D Model</th>
+                  <th scope='col'>Detail</th>
                   <th scope='col'>Update</th>
                   <th scope='col'>Delete</th>
                 </tr>
@@ -74,30 +141,9 @@ export default function Hostel() {
                   .map((data, index) => (
                     <tbody className='table-group-divider'>
                       <tr key={data._id}>
-                        <th scope='row'>{count + index}</th>
+                        {/* <th scope='row'>{count + index}</th> */}
                         <td> {data.hostelName}</td>
-                        <td> {data.hostelPrice}</td>
                         <td> {data.hostelType == "1" ? "Boys" : " Girls"}</td>
-                        <td>
-                          {" "}
-                          <Link
-                            className=' text-light'
-                            to={data.image}
-                            target='_blank'
-                          >
-                            Image
-                          </Link>
-                        </td>
-                        <td>
-                          {" "}
-                          <Link
-                            className=' text-light'
-                            to={data.model}
-                            target='_blank'
-                          >
-                            Model
-                          </Link>
-                        </td>
                         <td>
                           <button
                             className='btn btn-primary text-light fw-bold  btn-sm'
@@ -106,6 +152,16 @@ export default function Hostel() {
                             onClick={() => handleDetail(data)}
                           >
                             Detail
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-primary text-light fw-bold disable btn-sm"
+                            data-bs-toggle="modal"
+                            onClick={() => handleUpdate(data)}
+                            data-bs-target='#updateModel'
+                          >
+                            Update
                           </button>
                         </td>
                         <td>
@@ -130,7 +186,119 @@ export default function Hostel() {
           </div>
         </div>
       </div>
-      {/* <!-- Modal --> */}
+      {/* <!-- Modal Update --> */}
+      <div
+        class='modal fade'
+        id='updateModel'
+        tabindex='-1'
+        aria-labelledby='exampleModalLabel'
+        aria-hidden='true'
+      >
+        <div class='modal-dialog'>
+          <div class='modal-content'>
+            <div class='modal-header'>
+              <h1 class='modal-title fs-5' id='exampleModalLabel'>
+                Update
+              </h1>
+              <button
+                type='button'
+                class='btn-close'
+                data-bs-dismiss='modal'
+                aria-label='Close'
+              ></button>
+            </div>
+            <div class='modal-body'>
+              {" "}
+              <div className='CountryForm'>
+                <div className='mb-3'>
+                  <label htmlFor='handleCountryName' className='form-label'>
+                    Hostel Name
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control'
+                    id='handleCountryName'
+                    aria-describedby='emailHelp'
+                    value={hostelName}
+                    onChange={(event) => setHostelName(event.target.value)}
+                  />
+                </div>
+                <div className='mb-3'>
+                  <label htmlFor='handleCountryName' className='form-label'>
+                    Hostel Rent Per Month
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control'
+                    id='handleCountryName'
+                    aria-describedby='emailHelp'
+                    value={hostelPrice}
+                    onChange={(event) => setHostelPrice(event.target.value)}
+                  />
+                </div>
+                <div className='mb-3'>
+                  <label htmlFor='handleCountryName' className='form-label'>
+                    Hostel Location
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control'
+                    id='handlelocation'
+                    aria-describedby='emailHelp'
+                    value={hostelLocation}
+                    onChange={(event) => setHostelLocation(event.target.value)}
+                  />
+                </div>
+                <div className='mb-3'>
+                  <label htmlFor='handleCountryName' className='form-label'>
+                    Hostel Contact
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control'
+                    id='handlelocation'
+                    aria-describedby='emailHelp'
+                    value={hostelContact}
+                    onChange={(event) => setHostelContact(event.target.value)}
+                  />
+                </div>
+                <div className='mb-3'>
+                  <label htmlFor='handleCountryName' className='form-label'>
+                    Description
+                  </label>
+                  <textarea
+                    class='form-control'
+                    id='exampleFormControlTextarea1'
+                    rows='3'
+                    value={hostelDescription}
+                    onChange={(event) =>
+                      setHostelDescription(event.target.value)
+                    }
+                  ></textarea>
+                </div>
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary d-flex justify-content-center align-content-center m-auto my-3"
+                onClick={handleUpdateSubmit}
+              >
+                Update Hostel
+              </button>
+            </div>
+            <div class='modal-footer'>
+              <button
+                type='button'
+                class='btn btn-secondary'
+                data-bs-dismiss='modal'
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* <!-- Modal Update--> */}
+      {/* <!-- Modal Detail --> */}
       <div
         class='modal fade'
         id='exampleModal'
@@ -225,14 +393,11 @@ export default function Hostel() {
               >
                 Close
               </button>
-              <button type='button' class='btn btn-primary'>
-                Save changes
-              </button>
             </div>
           </div>
         </div>
       </div>
-      {/* <!-- Modal --> */}
+      {/* <!-- Modal Detail --> */}
     </>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 export default function ForgetPassword() {
   const [ownerEmail, setOwnerEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -10,7 +11,7 @@ export default function ForgetPassword() {
     console.log(ownerEmail);
     try {
       const response = await fetch(
-        "https://ait-bnb-apis.vercel.app/ownerForgetPassword",
+        "http://localhost:8000/ownerForgetPassword",
         {
           method: "POST",
           headers: {
@@ -25,7 +26,8 @@ export default function ForgetPassword() {
       if (data.success) {
         // Login successful, you can handle the success scenario here
         console.log("Link Send successful:", data);
-        setMessage(data.message);
+        // setMessage(data.message);
+        toast.success(data.message);
       } else {
         // Login failed, handle the error scenario
         console.error("Forget failed:", data.message);
@@ -44,9 +46,9 @@ export default function ForgetPassword() {
           </div>
 
           <div className='form'>
-            <p className='fw-bold d-flex justify-content-center align-content-center text-success fs-5'>
+            {/* <p className='fw-bold d-flex justify-content-center align-content-center text-success fs-5'>
               {message}
-            </p>
+            </p> */}
             <div className='form_input'>
               <label htmlFor='email'>Email Address</label>
               <div className='two'>
@@ -66,7 +68,7 @@ export default function ForgetPassword() {
             </button>
             <p>
               Back To Login?{" "}
-              <Link className='text-primary' to='/login'>
+              <Link className='text-primary' to='/'>
                 Login
               </Link>{" "}
             </p>
