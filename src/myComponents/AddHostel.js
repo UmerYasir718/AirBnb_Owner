@@ -29,8 +29,8 @@ export default function AddHostel() {
       toast.error("Enter Rent Less than 7000");
       return;
     }
-    if (hostelContact.length !== 14) {
-      toast.error("Enter Rent Less than 7000");
+    if (hostelContact.length !== 13) {
+      toast.error("Enter Valid Contact Number");
       return;
     }
     try {
